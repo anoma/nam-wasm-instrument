@@ -1,9 +1,9 @@
+use nam_wasm_instrument::{self as instrument, gas_metering, parity_wasm::elements, utils};
 use std::{
 	fs,
 	io::{self, Read, Write},
 	path::{Path, PathBuf},
 };
-use wasm_instrument::{self as instrument, gas_metering, parity_wasm::elements};
 use wasmparser::validate;
 
 fn slurp<P: AsRef<Path>>(path: P) -> io::Result<Vec<u8>> {
@@ -83,8 +83,10 @@ mod stack_height {
 					|input| {
 						let module =
 							elements::deserialize_buffer(input).expect("Failed to deserialize");
-						let instrumented = instrument::inject_stack_limiter(module, 1024)
-							.expect("Failed to instrument with stack counter");
+						let exempt_func_ids = utils::imported_function_ids(&module);
+						let instrumented =
+							instrument::inject_stack_limiter(module, 1024, &exempt_func_ids)
+								.expect("Failed to instrument with stack counter");
 						elements::serialize(instrumented).expect("Failed to serialize")
 					},
 				);

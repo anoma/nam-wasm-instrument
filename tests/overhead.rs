@@ -1,11 +1,12 @@
-use std::{
-	fs::{read, read_dir, ReadDir},
-	path::PathBuf,
-};
-use wasm_instrument::{
+use nam_wasm_instrument::{
 	gas_metering::{self, host_function, mutable_global, ConstantCostRules},
 	inject_stack_limiter,
 	parity_wasm::{deserialize_buffer, elements::Module, serialize},
+	utils,
+};
+use std::{
+	fs::{read, read_dir, ReadDir},
+	path::PathBuf,
 };
 
 fn fixture_dir() -> PathBuf {
@@ -24,7 +25,8 @@ fn gas_metered_mod_len<B: Backend>(orig_module: Module, backend: B) -> (Module, 
 }
 
 fn stack_limited_mod_len(module: Module) -> (Module, usize) {
-	let module = inject_stack_limiter(module, 128).unwrap();
+	let exempt_func_ids = utils::imported_function_ids(&module);
+	let module = inject_stack_limiter(module, 128, &exempt_func_ids).unwrap();
 	let bytes = serialize(module.clone()).unwrap();
 	let len = bytes.len();
 	(module, len)

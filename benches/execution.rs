@@ -1,14 +1,14 @@
 use criterion::{
 	criterion_group, criterion_main, measurement::Measurement, Bencher, BenchmarkGroup, Criterion,
 };
+use nam_wasm_instrument::{
+	gas_metering::{self, host_function, mutable_global, ConstantCostRules},
+	parity_wasm::{deserialize_buffer, elements::Module, serialize},
+};
 use std::{
 	fs::read,
 	path::PathBuf,
 	time::{Duration, SystemTime, UNIX_EPOCH},
-};
-use wasm_instrument::{
-	gas_metering::{self, host_function, mutable_global, ConstantCostRules},
-	parity_wasm::{deserialize_buffer, elements::Module, serialize},
 };
 use wasmi::{
 	core::{Pages, TrapCode, F32},
