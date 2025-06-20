@@ -8,9 +8,6 @@ mod backend;
 
 pub use backend::{host_function, mutable_global, Backend, GasMeter};
 
-#[cfg(test)]
-mod validation;
-
 use alloc::{vec, vec::Vec};
 use core::{cmp::min, mem, num::NonZeroU32};
 use parity_wasm::{
