@@ -312,7 +312,7 @@ pub fn inject<R: Rules, B: Backend>(
 				},
 			elements::Section::Name(s) =>
 				if let GasMeter::External { .. } = gas_meter {
-					for functions in s.functions_mut() {
+					if let Some(functions) = s.functions_mut() {
 						*functions.names_mut() =
 							IndexMap::from_iter(functions.names().iter().map(|(mut idx, name)| {
 								if idx >= gas_func_idx {
