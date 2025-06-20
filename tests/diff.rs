@@ -1,9 +1,9 @@
+use nam_wasm_instrument::{self as instrument, gas_metering, parity_wasm::elements, utils};
 use std::{
 	fs,
 	io::{self, Read, Write},
 	path::{Path, PathBuf},
 };
-use wasm_instrument::{self as instrument, gas_metering, parity_wasm::elements, utils};
 use wasmparser::validate;
 
 fn slurp<P: AsRef<Path>>(path: P) -> io::Result<Vec<u8>> {

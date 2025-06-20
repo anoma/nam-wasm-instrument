@@ -1,12 +1,12 @@
-use std::{
-	fs::{read, read_dir, ReadDir},
-	path::PathBuf,
-};
-use wasm_instrument::{
+use nam_wasm_instrument::{
 	gas_metering::{self, host_function, mutable_global, ConstantCostRules},
 	inject_stack_limiter,
 	parity_wasm::{deserialize_buffer, elements::Module, serialize},
 	utils,
+};
+use std::{
+	fs::{read, read_dir, ReadDir},
+	path::PathBuf,
 };
 
 fn fixture_dir() -> PathBuf {

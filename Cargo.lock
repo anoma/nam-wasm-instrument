@@ -339,6 +339,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
+name = "nam-wasm-instrument"
+version = "0.5.0"
+dependencies = [
+ "criterion",
+ "diff",
+ "parity-wasm",
+ "pretty_assertions",
+ "rand",
+ "wasmi",
+ "wasmparser 0.206.0",
+ "wasmprinter",
+ "wat",
+]
+
+[[package]]
 name = "num-traits"
 version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -707,21 +722,6 @@ checksum = "b3bc393c395cb621367ff02d854179882b9a351b4e0c93d1397e6090b53a5c2a"
 dependencies = [
  "leb128fmt",
  "wasmparser 0.235.0",
-]
-
-[[package]]
-name = "wasm-instrument"
-version = "0.4.0"
-dependencies = [
- "criterion",
- "diff",
- "parity-wasm",
- "pretty_assertions",
- "rand",
- "wasmi",
- "wasmparser 0.206.0",
- "wasmprinter",
- "wat",
 ]
 
 [[package]]
