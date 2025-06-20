@@ -1,6 +1,6 @@
 //! Contains the code for the stack height limiter instrumentation.
 
-use alloc::{vec, vec::Vec};
+use alloc::{collections::btree_set::BTreeSet, vec, vec::Vec};
 use core::mem;
 use parity_wasm::{
 	builder,
@@ -114,10 +114,11 @@ impl Context {
 pub fn inject(
 	mut module: elements::Module,
 	stack_limit: u32,
+	exempt_func_ids: &BTreeSet<u32>,
 ) -> Result<elements::Module, &'static str> {
 	let mut ctx = Context {
 		stack_height_global_idx: generate_stack_height_global(&mut module),
-		func_stack_costs: compute_stack_costs(&module)?,
+		func_stack_costs: compute_stack_costs(&module, exempt_func_ids)?,
 		stack_limit,
 	};
 
@@ -154,17 +155,18 @@ fn generate_stack_height_global(module: &mut elements::Module) -> u32 {
 /// Calculate stack costs for all functions.
 ///
 /// Returns a vector with a stack cost for each function, including imports.
-fn compute_stack_costs(module: &elements::Module) -> Result<Vec<u32>, &'static str> {
-	let func_imports = module.import_count(elements::ImportCountType::Function);
-
-	// TODO: optimize!
+fn compute_stack_costs(
+	module: &elements::Module,
+	exempt_func_ids: &BTreeSet<u32>,
+) -> Result<Vec<u32>, &'static str> {
 	(0..module.functions_space())
 		.map(|func_idx| {
-			if func_idx < func_imports {
-				// We can't calculate stack_cost of the import functions.
+			let func_idx = func_idx as u32;
+
+			if exempt_func_ids.contains(&func_idx) {
 				Ok(0)
 			} else {
-				compute_stack_cost(func_idx as u32, module)
+				compute_stack_cost(func_idx, module)
 			}
 		})
 		.collect()
@@ -347,8 +349,10 @@ fn resolve_func_type(
 
 #[cfg(test)]
 mod tests {
-	use super::*;
 	use parity_wasm::elements;
+
+	use super::*;
+	use crate::utils;
 
 	fn parse_wat(source: &str) -> elements::Module {
 		elements::deserialize_buffer(&wat::parse_str(source).expect("Failed to wat2wasm"))
@@ -374,7 +378,10 @@ mod tests {
 "#,
 		);
 
-		let module = inject(module, 1024).expect("Failed to inject stack counter");
+		let exempt_func_ids = utils::imported_function_ids(&module);
+
+		let module =
+			inject(module, 1024, &exempt_func_ids).expect("Failed to inject stack counter");
 		validate_module(module);
 	}
 }

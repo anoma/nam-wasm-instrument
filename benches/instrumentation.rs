@@ -10,6 +10,7 @@ use wasm_instrument::{
 	gas_metering::{self, host_function, ConstantCostRules},
 	inject_stack_limiter,
 	parity_wasm::{deserialize_buffer, elements::Module},
+	utils,
 };
 
 fn fixture_dir() -> PathBuf {
@@ -50,7 +51,8 @@ fn gas_metering(c: &mut Criterion) {
 fn stack_height_limiter(c: &mut Criterion) {
 	let mut group = c.benchmark_group("Stack Height Limiter");
 	for_fixtures(&mut group, |module| {
-		inject_stack_limiter(module, 128).unwrap();
+		let exempt_func_ids = utils::imported_function_ids(&module);
+		inject_stack_limiter(module, 128, &exempt_func_ids).unwrap();
 	});
 }
 
